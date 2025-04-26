@@ -3,23 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Worlds</title>
+  <title>IFC Viewer</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="icon" type="image/x-icon" href="https://thatopen.github.io/engine_components/resources/favicon.ico">
   <style>
     body { margin: 0; padding: 0; overflow: hidden; font-family: "Plus Jakarta Sans", sans-serif; }
     .full-screen { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
-    .options-menu { position: fixed; top: 5px; right: 5px; max-height: calc(100vh - 10px); }
-    .phone-menu-toggler { visibility: hidden; }
-    @media (max-width: 480px) {
-      .options-menu { visibility: hidden; bottom: 5px; left: 5px; }
-      .options-menu-visible { visibility: visible; }
-      .phone-menu-toggler { visibility: visible; position: fixed; top: 5px; right: 5px; }
-    }
   </style>
 </head>
 <body>
   <div class="full-screen" id="container"></div>
+
+  <!-- IFC input (hidden, triggered via button) -->
+  <input type="file" id="ifcInput" style="display: none;" />
+
+  <!-- Your main script -->
   <script type="module" src="/src/main.ts"></script>
+
+  <!-- UI panel -->
+  <script type="module">
+    import * as BUI from 'https://unpkg.com/@thatopen/ui?module';
+
+    // Dummy functions — Replace with your real ones from main.ts
+    const loadIfc = () => document.getElementById('ifcInput').click();
+    const exportFragments = () => alert('Exporting Fragments...');
+    const disposeFragments = () => alert('Disposing Fragments...');
+    const toggleVisibilityByCategory = (cat) => alert(`Toggling visibility of ${cat}`);
+    const toggleHoverTooltip = () => alert('Toggling Hover Tooltip');
+
+    BUI.Manager.init();
+
+    // 🎯 Create the Options Menu
+    const panel = BUI.Component.create(() => {
+      return BUI.html`
+        <bim-panel active label="IFC Viewer" class="options-menu">
+          <bim-panel-section collapsed label="Controls">
+            <bim-panel-section style="padding-top: 12px;">
+              <bim-button label="Load IFC" @click="${() => loadIfc()}"></bim-button>  
+              <bim-button label="Export Fragments" @click="${() => exportFragments()}"></bim-button>  
+              <bim-button label="Dispose Fragments" @click="${() => disposeFragments()}"></bim-button>
+              <bim-button label="Toggle Roof Visibility" @click="${() => toggleVisibilityByCategory('IFCROOF')}"></bim-button>
+              <bim-button label="Toggle Wall Visibility" @click="${() => toggleVisibilityByCategory('IFCWALL')}"></bim-button>
+              <bim-button label="Toggle Slab Visibility" @click="${() => toggleVisibilityByCategory('IFCSLAB')}"></bim-button>
+              <bim-button label="Toggle Hover Tooltip" @click="${() => toggleHoverTooltip()}"></bim-button>
+            </bim-panel-section>
+          </bim-panel-section>
+        </bim-panel>
+      `;
+    });
+    document.body.append(panel);
+
+    // 📱 Create Phone Toggle Button
+    const toggleBtn = BUI.Component.create(() => {
+      return BUI.html`
+        <bim-button class="phone-menu-toggler" icon="solar:settings-bold"
+          @click="${() => {
+            panel.classList.toggle("options-menu-visible");
+          }}">
+        </bim-button>
+      `;
+    });
+    document.body.append(toggleBtn);
+
+    // ✨ Styling for Panel and Button
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .phone-menu-toggler {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
+      }
+      .options-menu {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 100%;
+        background-color: white;
+        border-left: 2px solid #ccc;
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+        display: none;
+        overflow-y: auto;
+      }
+      .options-menu-visible {
+        display: block;
+      }
+    `;
+    document.head.append(style);
+  </script>
 </body>
 </html>
